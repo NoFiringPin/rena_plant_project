@@ -1,0 +1,25 @@
+{
+  "plants": {
+    "Aloe Vera": {
+      "tips": [
+        "Place in indirect sunlight.",
+        "Water every 2 weeks.",
+        "Avoid overwatering."
+      ]
+    },
+    "Snake Plant": {
+      "tips": [
+        "Place in low light conditions.",
+        "Water once a month.",
+        "Ensure soil is well-drained."
+      ]
+    },
+    "Spider Plant": {
+      "tips": [
+        "Place in bright, indirect sunlight.",
+        "Water frequently but avoid soggy soil.",
+        "Propagate by separating baby plants."
+      ]
+    }
+  }
+}
