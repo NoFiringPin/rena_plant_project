@@ -95,14 +95,28 @@ class _PlantStatusPageState extends State<PlantStatusPage> {
         setState(() {
           plantStatus = data['healthStatus'] ?? 'Unknown';
           hydrationLevel = data['hydration'] ?? 0;
-          moistureLevel = int.parse(data['moisture'] ?? '0');
+
+          // Handle `moisture` as a double or string and convert to int
+          if (data['moisture'] != null) {
+            var moistureValue = data['moisture'];
+            if (moistureValue is String) {
+              moistureLevel = double.parse(moistureValue).toInt();
+            } else if (moistureValue is int) {
+              moistureLevel = moistureValue;
+            } else if (moistureValue is double) {
+              moistureLevel = moistureValue.toInt();
+            }
+          }
+
           lastWatered = DateTime.parse(data['lastWatered'] ?? DateTime.now().toIso8601String());
           if (data['reminderDateTime'] != null) {
             reminderDateTime = DateTime.parse(data['reminderDateTime']);
           }
+
           // Debugging: Print the dates for verification
           print('Last Watered: $lastWatered');
           print('Reminder DateTime: $reminderDateTime');
+
           isLoading = false;
           hasError = false;
         });
@@ -122,6 +136,7 @@ class _PlantStatusPageState extends State<PlantStatusPage> {
       print('Error fetching data: $error');
     }
   }
+
 
 
   Future<void> _loadPlantTips() async {
@@ -153,9 +168,15 @@ class _PlantStatusPageState extends State<PlantStatusPage> {
       return Colors.green; // Green by default if no reminder or no last watered date
     }
 
-    // If current time is past reminder and last watered is before reminder, show red
-    return DateTime.now().isAfter(reminderDateTime!) && lastWatered!.isBefore(reminderDateTime!) ? Colors.red : Colors.green;
+    // Ensure the reminder is after the last watered date and current time is past the reminder
+    if (DateTime.now().isAfter(reminderDateTime!) && lastWatered!.isBefore(reminderDateTime!) && reminderDateTime!.isAfter(lastWatered!)) {
+      return Colors.red;
+    }
+
+    return Colors.green;
   }
+
+
 
 
 
