@@ -1,0 +1,30 @@
+{
+  "project_info": {
+    "project_number": "606886870127",
+    "firebase_url": "https://plantprojectapp-default-rtdb.firebaseio.com",
+    "project_id": "plantprojectapp",
+    "storage_bucket": "plantprojectapp.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:606886870127:android:958eaad45bff010de9a19a",
+        "android_client_info": {
+          "package_name": "plant.monitor.app"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyC6VFPQxQVTyDsEAAZTpsMgAGo4ftuQq60"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
