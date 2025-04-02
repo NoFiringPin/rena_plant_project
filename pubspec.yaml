@@ -62,6 +62,9 @@ flutter:
     - assets/aloe.jpg
     - assets/snake.jpg
     - assets/spider.jpg
+    - assets/item1.jpg
+    - assets/item2.jpg
+    - assets/item3.jpg
     - .env
 
 

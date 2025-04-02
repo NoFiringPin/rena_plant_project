@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'plantstatuspage.dart'; // Import the PlantStatusPage here
+import 'rewardspage.dart';
 
 class PlantSelectionPage extends StatefulWidget {
   @override
@@ -42,9 +43,26 @@ class _PlantSelectionPageState extends State<PlantSelectionPage> {
     );
   }
 
+  void _goToRewardsPage(BuildContext context) {
+    Navigator.push(
+      context,
+      MaterialPageRoute(builder: (context) => RewardsPage()),
+    );
+  }
+
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      appBar: AppBar(
+        title: Text('Plant Selection'),
+        actions: [
+          IconButton(
+            icon: Icon(Icons.card_giftcard),
+            onPressed: () => _goToRewardsPage(context),
+          ),
+        ],
+      ),
       body: Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
@@ -94,9 +112,16 @@ class _PlantSelectionPageState extends State<PlantSelectionPage> {
               onPressed: _goToPlantStatusPage,
               child: Text('View Plant Status'),
             ),
+            SizedBox(height: 20),
+            // Button to navigate to RewardsPage
+            ElevatedButton(
+              onPressed: () => _goToRewardsPage(context),
+              child: Text('Go to Rewards'),
+            ),
           ],
         ),
       ),
     );
   }
+
 }

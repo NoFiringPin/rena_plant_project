@@ -1,4 +1,5 @@
 import 'dart:convert'; // For json decoding
+import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart'; // For rootBundle to load assets
 import 'package:firebase_database/firebase_database.dart';
@@ -18,6 +19,7 @@ class _PlantStatusPageState extends State<PlantStatusPage> {
   String plantStatus = 'Loading...';
   int hydrationLevel = 0;
   int moistureLevel = 0;
+  int points = 0;
   DateTime? lastWatered;
   DateTime? reminderDateTime; // Track both date and time for the reminder
   bool isLoading = true;
@@ -26,6 +28,9 @@ class _PlantStatusPageState extends State<PlantStatusPage> {
   final DatabaseReference _database = FirebaseDatabase.instance.ref();
   Timer? _timer;
   List<String> plantTips = [];
+
+  int maxPoints = 100;
+  Duration minInterval = Duration(hours: 24);
 
   @override
   void initState() {
@@ -47,12 +52,23 @@ class _PlantStatusPageState extends State<PlantStatusPage> {
     });
   }
 
+  int calculatePoints(DateTime wateredTime) {
+    if (reminderDateTime == null) return 0;
+    Duration difference = wateredTime.difference(reminderDateTime!).abs();
+    if (difference > minInterval) return 0;
+    int deductedPoints = (difference.inMinutes * maxPoints) ~/ minInterval.inMinutes;
+    return max(0, maxPoints - deductedPoints);
+  }
+
   void _waterPlantToday() async {
     DateTime now = DateTime.now();
-    await _database.child('plant1/lastWatered').set(now.toIso8601String());
+    int rewardPoints = calculatePoints(now);
     setState(() {
       lastWatered = now;
+      points += rewardPoints;
     });
+    await _database.child('plant1/lastWatered').set(now.toIso8601String());
+    await _database.child('plant1/points').set(points);
   }
 
   Future<void> _setReminder() async {
@@ -96,7 +112,6 @@ class _PlantStatusPageState extends State<PlantStatusPage> {
           plantStatus = data['healthStatus'] ?? 'Unknown';
           hydrationLevel = data['hydration'] ?? 0;
 
-          // Handle `moisture` as a double or string and convert to int
           if (data['moisture'] != null) {
             var moistureValue = data['moisture'];
             if (moistureValue is String) {
@@ -108,6 +123,7 @@ class _PlantStatusPageState extends State<PlantStatusPage> {
             }
           }
 
+          points = data['points'] ?? 0;
           lastWatered = DateTime.parse(data['lastWatered'] ?? DateTime.now().toIso8601String());
           if (data['reminderDateTime'] != null) {
             reminderDateTime = DateTime.parse(data['reminderDateTime']);
@@ -136,8 +152,6 @@ class _PlantStatusPageState extends State<PlantStatusPage> {
       print('Error fetching data: $error');
     }
   }
-
-
 
   Future<void> _loadPlantTips() async {
     try {
@@ -175,10 +189,6 @@ class _PlantStatusPageState extends State<PlantStatusPage> {
 
     return Colors.green;
   }
-
-
-
-
 
   String _formatReminderDateTime() {
     if (reminderDateTime == null) return 'No reminder set';
@@ -226,6 +236,23 @@ class _PlantStatusPageState extends State<PlantStatusPage> {
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: <Widget>[
+                // Points Display
+                Container(
+                  padding: EdgeInsets.all(12),
+                  decoration: BoxDecoration(
+                    border: Border.all(color: Colors.grey),
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                  child: Text(
+                    'Points: $points',
+                    style: TextStyle(
+                      fontSize: 20,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.blue,
+                    ),
+                  ),
+                ),
+                SizedBox(height: 20),
                 // Last watered time
                 Container(
                   padding: EdgeInsets.all(12),
@@ -406,4 +433,5 @@ class _PlantStatusPageState extends State<PlantStatusPage> {
       ),
     );
   }
+
 }
