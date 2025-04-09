@@ -52,13 +52,31 @@ class _PlantStatusPageState extends State<PlantStatusPage> {
     });
   }
 
-  int calculatePoints(DateTime wateredTime) {
+  DateTime? lastRewardTime; // Track the last time points were rewarded
+  Duration rewardCooldown = Duration(minutes: 10); // Default cooldown period
+
+  int calculatePoints(DateTime wateredTime, {Duration latenessGap = const Duration(minutes: 5)}) {
     if (reminderDateTime == null) return 0;
+
+    // Check if the cooldown period has passed since the last reward
+    if (lastRewardTime != null && DateTime.now().difference(lastRewardTime!) < rewardCooldown) {
+      print('Points not rewarded due to cooldown.');
+      return 0; // Skip rewarding points
+    }
+    // Calculate the difference between watered time and reminder time
     Duration difference = wateredTime.difference(reminderDateTime!).abs();
+    // If the difference is greater than the minimum interval, return 0 points
     if (difference > minInterval) return 0;
-    int deductedPoints = (difference.inMinutes * maxPoints) ~/ minInterval.inMinutes;
+    // Calculate the number of lateness gaps within the difference
+    int latenessUnits = (difference.inSeconds / latenessGap.inSeconds).ceil();
+    // Calculate deducted points based on the number of lateness gaps
+    int deductedPoints = (latenessUnits * maxPoints) ~/ (minInterval.inSeconds ~/ latenessGap.inSeconds);
+    // Update the last reward time
+    lastRewardTime = DateTime.now();
+
     return max(0, maxPoints - deductedPoints);
   }
+
 
   void _waterPlantToday() async {
     DateTime now = DateTime.now();
